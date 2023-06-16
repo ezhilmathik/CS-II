@@ -223,11 +223,11 @@ SUBROUTINE nc_init
             TRIM(attstr)) 
        s = s + 1
 
-        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Magnitude',         NF_DOUBLE, 1, real(eq_mag,dp)) 
+        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Magnitude',         NF_DOUBLE, 1, eq_mag) 
         s = s + 1
-        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Epicenter_X',       NF_DOUBLE, 1, real(eq_epi_x,dp)) 
+        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Epicenter_X',       NF_DOUBLE, 1, eq_epi_x) 
         s = s + 1
-        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Epicenter_Y',       NF_DOUBLE, 1, real(eq_epi_y,dp)) 
+        stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Input_Epicenter_Y',       NF_DOUBLE, 1, eq_epi_y) 
        ! s = s + 1
        !stat(s) = NF_PUT_ATT_INT(fileid,    NF_GLOBAL, 'Tsunami_Input_Direction_Rupture', NF_FLOAT,  1, eq_dir_rupt) 
         s = s + 1
@@ -259,21 +259,19 @@ SUBROUTINE nc_init
        stat(s) = NF_PUT_ATT_TEXT(fileid, NF_GLOBAL, 'sourceDescription', LEN_TRIM(attstr),    &
             TRIM(attstr)) 
 
-       s = s + 1
         stat(s) = NF_PUT_ATT_INT(fileid,    NF_GLOBAL,  'number_of_fault_planes',          NF_INT,    1, nfault) 
+        s = s + 1
      
        IF (nfault == 1) THEN
-               X0 = okada_faults(1)%lon   
-               Y0 = okada_faults(1)%lat   
-               D  = okada_faults(1)%slip  
-               L  = okada_faults(1)%len   
-               W  = okada_faults(1)%width 
-               TH = okada_faults(1)%strike
-               DL = okada_faults(1)%dip   
-               HH = okada_faults(1)%depth 
-               RD = okada_faults(1)%rake  
-                    
-               s = s
+               X0 = AllFaults(1, 1)
+               Y0 = AllFaults(2, 1)
+               D  = AllFaults(3, 1)
+               L  = AllFaults(4, 1)
+               W  = AllFaults(5, 1)
+               TH = AllFaults(6, 1)
+               DL = AllFaults(7, 1)
+               HH = AllFaults(8, 1)
+               RD = AllFaults(9, 1)
 
            stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Okada_Plane_X0',              NF_DOUBLE, 1, X0) 
            s = s + 1
@@ -298,15 +296,15 @@ SUBROUTINE nc_init
 
                WRITE(par_num, '(I2.2)') i
 
-               X0 = okada_faults(okada_rupt(i))%lon   
-               Y0 = okada_faults(okada_rupt(i))%lat   
-               D  = okada_faults(okada_rupt(i))%slip  
-               L  = okada_faults(okada_rupt(i))%len   
-               W  = okada_faults(okada_rupt(i))%width 
-               TH = okada_faults(okada_rupt(i))%strike
-               DL = okada_faults(okada_rupt(i))%dip   
-               HH = okada_faults(okada_rupt(i))%depth 
-               RD = okada_faults(okada_rupt(i))%rake 
+               X0 = AllFaults(1, faults(i))
+               Y0 = AllFaults(2, faults(i))
+               D  = AllFaults(3, faults(i))
+               L  = AllFaults(4, faults(i))
+               W  = AllFaults(5, faults(i))
+               TH = AllFaults(6, faults(i))
+               DL = AllFaults(7, faults(i))
+               HH = AllFaults(8, faults(i))
+               RD = AllFaults(9, faults(i))
 
                s = s + 1
                stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'Tsunami_Okada_Plane_X0_'//par_num,              &
@@ -353,13 +351,13 @@ SUBROUTINE nc_init
        stat(s) = NF_PUT_ATT_TEXT(fileId, NF_GLOBAL, 'source_zone_id', len_trim(sz), sz)
        s = s + 1
 
-       stat(s) = NF_PUT_ATT_INT(fileId,    NF_GLOBAL,  'sourceParameter_Epi_i',  NF_INT,    1, epi_i)    
+       stat(s) = NF_PUT_ATT_INT(fileId,    NF_GLOBAL,  'sourceParameterEpi_i',   NF_INT,    1, epi_i)    
        s = s + 1
 
        stat(s) = NF_PUT_ATT_INT(fileId,    NF_GLOBAL,  'sourceParameter_Epi_j',  NF_INT,    1, epi_j)    
        s = s + 1
 
-       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_mw',   NF_DOUBLE, 1, real(mw,dp))
+       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_mw',   NF_DOUBLE, 1, mw)
 
     elseif (enable_idealised) then
 
@@ -368,13 +366,15 @@ SUBROUTINE nc_init
        stat(s) = NF_PUT_ATT_TEXT(fileId, NF_GLOBAL, 'sourceDescription', len_trim(attstr),    &
                                  TRIM(attstr))
 
-       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_Epi_lon', NF_DOUBLE, 1, real(eq_epi_x,dp))  
+       stat(s) = NF_PUT_ATT_DOUBLE(fileId,    NF_GLOBAL,  'sourceParameterEpi_lon',   NF_DOUBLE,    1, eq_epi_x)    
        s = s + 1
 
-       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_Epi_lat', NF_DOUBLE, 1, real(eq_epi_y,dp))    
+       stat(s) = NF_PUT_ATT_DOUBLE(fileId,    NF_GLOBAL,  'sourceParameter_Epi_lat',  NF_DOUBLE,    1, eq_epi_y)    
        s = s + 1
 
-       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_mag',     NF_DOUBLE, 1, real(eq_mag,dp))
+       stat(s) = NF_PUT_ATT_DOUBLE(fileId, NF_GLOBAL, 'sourceParameter_mag',   NF_DOUBLE, 1, eq_mag)
+
+       
 
     END IF
 
@@ -440,19 +440,19 @@ SUBROUTINE nc_init
     s = s + 1
     
     attval=T_end
-    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'integrationTime',            NF_DOUBLE, 1, attval)
+    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'integrationTime',         NF_DOUBLE, 1, attval)
     s = s + 1
     
     attval=longestEdge
-    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'spatialResolution_Coarse',   NF_DOUBLE, 1, attval)
+    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'spatialResolution_Coarse',         NF_DOUBLE, 1, attval)
     s = s + 1
     
     attval=shortestEdge
-    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'spatialResolution_Fine',     NF_DOUBLE, 1, attval)
+    stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'spatialResolution_Fine',         NF_DOUBLE, 1, attval)
     s = s + 1
 
     attValInt=nod2D
-    stat(s) = NF_PUT_ATT_INT(fileid,    NF_GLOBAL,  'degreeOfFreedom',           NF_INT,    1, attValInt)
+    stat(s) = NF_PUT_ATT_INT(fileid,    NF_GLOBAL,  'degreeOfFreedom',          NF_INT,    1, attValInt)
 
     if (enable_benchmark .and. benchmark_ident<=2) then
        s = s + 1
@@ -502,9 +502,9 @@ SUBROUTINE nc_init
     
     stat(s) = NF_DEF_VAR(fileid, 'surface_locations', NF_FLOAT, 2, dimarray(1:2), VarId_loc2D) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'longitude',         NF_FLOAT, 1, [DimId_n2D],     VarId_lon) 
+    stat(s) = NF_DEF_VAR(fileid, 'longitude',         NF_FLOAT, 1, DimId_n2D,     VarId_lon) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'latitude',          NF_FLOAT, 1, [DimId_n2D],     VarId_lat) 
+    stat(s) = NF_DEF_VAR(fileid, 'latitude',          NF_FLOAT, 1, DimId_n2D,     VarId_lat) 
     s = s + 1
 
 !----- grid
@@ -514,31 +514,31 @@ SUBROUTINE nc_init
 
     stat(s) = NF_DEF_VAR(fileid, 'triangles',  NF_INT, 2, dimarray(1:2), VarId_trian) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'tri_area', NF_FLOAT, 1, [DimId_el2D],    VarId_tri_area) 
+    stat(s) = NF_DEF_VAR(fileid, 'tri_area', NF_FLOAT, 1, DimId_el2D,    VarId_tri_area) 
     s = s + 1
 
 !----- node indices
-    stat(s) = NF_DEF_VAR(fileid, 'node_index', NF_INT, 1, [DimId_n2D],     VarId_index) 
+    stat(s) = NF_DEF_VAR(fileid, 'node_index', NF_INT, 1, DimId_n2D,     VarId_index) 
     s = s + 1
 
 !----- numbers 
-    stat(s) = NF_DEF_VAR(fileid, 'iteration',  NF_INT, 1, [DimId_iter],    VarId_iter) 
+    stat(s) = NF_DEF_VAR(fileid, 'iteration',  NF_INT, 1, DimId_iter,    VarId_iter) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'time',     NF_FLOAT, 1, [DimId_iter],    VarId_time) 
+    stat(s) = NF_DEF_VAR(fileid, 'time',     NF_FLOAT, 1, DimId_iter,    VarId_time) 
     s = s + 1
 
 !----- energy
     if (write_energy) then
-       stat(s) = NF_DEF_VAR(fileid, 'epot',  NF_FLOAT, 1, [DimId_iter],    VarId_epot) 
+       stat(s) = NF_DEF_VAR(fileid, 'epot',  NF_FLOAT, 1, DimId_iter,    VarId_epot) 
        s = s + 1
-       stat(s) = NF_DEF_VAR(fileid, 'ekin',  NF_FLOAT, 1, [DimId_iter],    VarId_ekin) 
+       stat(s) = NF_DEF_VAR(fileid, 'ekin',  NF_FLOAT, 1, DimId_iter,    VarId_ekin) 
        s = s + 1
     endif
        
 !----- topography
-    stat(s) = NF_DEF_VAR(fileid,'initial_topography',NF_FLOAT, 1, [DimId_n2D], VarId_topo_ini) 
+    stat(s) = NF_DEF_VAR(fileid,'initial_topography',NF_FLOAT, 1, DimId_n2D, VarId_topo_ini) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid,'topography',NF_FLOAT, 1, [DimId_n2D],    VarId_topo) 
+    stat(s) = NF_DEF_VAR(fileid,'topography',NF_FLOAT, 1, DimId_n2D,    VarId_topo) 
     s = s + 1
 
 !----- F I E L D S 
@@ -553,20 +553,20 @@ SUBROUTINE nc_init
 
 !----- arrival times, max. wave height, max. abs. velocity, max. flux, initial uplift
 
-    stat(s) = NF_DEF_VAR(fileid, 'first_arrival',     NF_FLOAT, 1, [DimId_n2D], VarId_arrival)
+    stat(s) = NF_DEF_VAR(fileid, 'first_arrival',     NF_FLOAT, 1, DimId_n2D, VarId_arrival)
  
     if (write_ttt) then
        s = s + 1
-       stat(s) = NF_DEF_VAR(fileid, 'first_arrival_ttt', NF_FLOAT, 1, [DimId_n2D], VarId_ttt) 
+       stat(s) = NF_DEF_VAR(fileid, 'first_arrival_ttt', NF_FLOAT, 1, DimId_n2D, VarId_ttt) 
     endif
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'max_wave_height',   NF_FLOAT, 1, [DimId_n2D], VarId_mwh) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_wave_height',   NF_FLOAT, 1, DimId_n2D, VarId_mwh) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'max_abs_vel',       NF_FLOAT, 1, [DimId_n2D], VarId_vel) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_abs_vel',       NF_FLOAT, 1, DimId_n2D, VarId_vel) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'max_flux',          NF_FLOAT, 1, [DimId_n2D], VarId_flux) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_flux',          NF_FLOAT, 1, DimId_n2D, VarId_flux) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'initial_uplift',    NF_FLOAT, 1, [DimId_n2D], VarId_uplift) 
+    stat(s) = NF_DEF_VAR(fileid, 'initial_uplift',    NF_FLOAT, 1, DimId_n2D, VarId_uplift) 
 
 !----- vector variables
 
@@ -953,15 +953,15 @@ SUBROUTINE nc_out(iteration)
 !----- WRITE VARIABLES
     s = 1
 
-    stat(s) = NF_PUT_VARA_INT(fileid,  VarId_iter, [iter], [1], iteration) 
+    stat(s) = NF_PUT_VARA_INT(fileid,  VarId_iter, iter, 1, iteration) 
     s = s + 1
-    stat(s) = NF_PUT_VARA_REAL(fileid, VarId_time, [iter], [1], [REAL(time, sp)]) 
+    stat(s) = NF_PUT_VARA_REAL(fileid, VarId_time, iter, 1, REAL(time, sp)) 
     s = s + 1
 
     if (write_energy) then
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_epot, [iter], [1], [REAL(epot, sp)]) 
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_epot, iter, 1, REAL(epot, sp)) 
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_ekin, [iter], [1], [REAL(ekin, sp)]) 
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_ekin, iter, 1, REAL(ekin, sp)) 
        s = s + 1
     endif
        
@@ -1003,13 +1003,13 @@ SUBROUTINE nc_out(iteration)
 
     if (write_diag_in_nc_snapshots) then
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_arrival, [1], [nod2D], arrival_time(:)) 
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_arrival, 1, nod2D, arrival_time(:)) 
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_mwh,     [1], [nod2D], mwh(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_mwh,     1, nod2D, mwh(:))
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_vel,     [1], [nod2D], max_abs_vel(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_vel,     1, nod2D, max_abs_vel(:))
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_flux,    [1], [nod2D], max_flux(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_flux,    1, nod2D, max_flux(:))
     endif
 
 !----- VECTOR FIELDS
@@ -1113,7 +1113,7 @@ subroutine nc_finalize
     s=s+1; stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'globalMinSSH',         NF_DOUBLE, 1, attVal) 
 
     attVal=maxval(mwh(:))
-    s=s+1; stat(s) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'globalMaxSSH',         NF_DOUBLE, 1, attVal) 
+    s=s+1; stat(1) = NF_PUT_ATT_DOUBLE(fileid, NF_GLOBAL, 'globalMaxSSH',         NF_DOUBLE, 1, attVal) 
 
     do i=1,s
        if (stat(i) /= NF_NOERR) then
@@ -1143,13 +1143,13 @@ subroutine nc_finalize
        END DO
 
        s = 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_arrival, [1], [nod2D], arrival_time(:)) 
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_arrival, 1, nod2D, arrival_time(:)) 
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_mwh,     [1], [nod2D], mwh(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_mwh,     1, nod2D, mwh(:))
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_vel,     [1], [nod2D], max_abs_vel(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_vel,     1, nod2D, max_abs_vel(:))
        s = s + 1
-       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_flux,    [1], [nod2D], max_flux(:))
+       stat(s) = NF_PUT_VARA_REAL(fileid, VarId_flux,    1, nod2D, max_flux(:))
       
        DO i = 1, s 
           IF (stat(i) /= NF_NOERR) then
@@ -1836,9 +1836,9 @@ SUBROUTINE nc_inundation
     
     stat(s) = NF_DEF_VAR(fileid, 'surface_locations', NF_FLOAT, 2, dimarray(1:2), VarId_loc2D) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'longitude',         NF_FLOAT, 1, [DimId_n2D],     VarId_lon) 
+    stat(s) = NF_DEF_VAR(fileid, 'longitude',         NF_FLOAT, 1, DimId_n2D,     VarId_lon) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'latitude',          NF_FLOAT, 1, [DimId_n2D],     VarId_lat) 
+    stat(s) = NF_DEF_VAR(fileid, 'latitude',          NF_FLOAT, 1, DimId_n2D,     VarId_lat) 
     s = s + 1
 
 !----- grid
@@ -1848,27 +1848,27 @@ SUBROUTINE nc_inundation
 
     stat(s) = NF_DEF_VAR(fileid, 'triangles', NF_INT,   2, dimarray(1:2), VarId_trian) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'tri_area',  NF_FLOAT, 1, [DimId_el2D],    VarId_tri_area) 
+    stat(s) = NF_DEF_VAR(fileid, 'tri_area',  NF_FLOAT, 1, DimId_el2D,    VarId_tri_area) 
     s = s + 1
 
 
 !----- topography
 
-    stat(s) = NF_DEF_VAR(fileid, 'initial_topography', NF_FLOAT, 1, [DimId_n2D],    VarId_topo_ini) 
+    stat(s) = NF_DEF_VAR(fileid, 'initial_topography', NF_FLOAT, 1, DimId_n2D,    VarId_topo_ini) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'topography', NF_FLOAT, 1, [DimId_n2D],    VarId_topo) 
+    stat(s) = NF_DEF_VAR(fileid, 'topography', NF_FLOAT, 1, DimId_n2D,    VarId_topo) 
     s = s + 1
 
 !----- F I E L D S 
 
 
-    stat(s) = NF_DEF_VAR(fileid, 'max_wave_height',   NF_FLOAT, 1, [DimId_n2D], VarId_mwh) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_wave_height',   NF_FLOAT, 1, DimId_n2D, VarId_mwh) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'max_abs_vel',       NF_FLOAT, 1, [DimId_n2D], VarId_vel) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_abs_vel',       NF_FLOAT, 1, DimId_n2D, VarId_vel) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'max_flux',          NF_FLOAT, 1, [DimId_n2D], VarId_flux) 
+    stat(s) = NF_DEF_VAR(fileid, 'max_flux',          NF_FLOAT, 1, DimId_n2D, VarId_flux) 
     s = s + 1
-    stat(s) = NF_DEF_VAR(fileid, 'initial_uplift',    NF_FLOAT, 1, [DimId_n2D], VarId_uplift) 
+    stat(s) = NF_DEF_VAR(fileid, 'initial_uplift',    NF_FLOAT, 1, DimId_n2D, VarId_uplift) 
 
     !----- vector variables
     

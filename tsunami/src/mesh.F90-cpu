@@ -92,7 +92,7 @@ SUBROUTINE mesh_scaling
 ! on the sphere 
        scaling = r_earth 
        ALLOCATE(cos_nod(nod2D))
-!$OMP target teams distribute PARALLEL DO default(shared) private(n) 
+!$OMP PARALLEL DO default(shared) private(n) 
        DO n=1, nod2D         
           ! transform coordinates from deg to rad
           coord_nod2D(1:2,n) = coord_nod2D(1:2,n) * rad
@@ -100,7 +100,7 @@ SUBROUTINE mesh_scaling
           ! scaling according to latitude
           cos_nod(n) = COS(coord_nod2D(2,n))
        END DO
-!$OMP END target teams distribute PARALLEL DO      
+!$OMP END PARALLEL DO      
 
     elseif ( coordinate_type == 2 ) then
 ! in the plane 
@@ -147,12 +147,12 @@ SUBROUTINE read_2Dmesh()
   READ(infile_nod, *) nod2D       
 
   ALLOCATE(coord_nod2D(2,nod2D), index_nod2D(nod2D))
-!$OMP target teams distribute PARALLEL DO 
+!$OMP PARALLEL DO 
   DO n=1, nod2D
      coord_nod2D(:,n) = 0.
      index_nod2D(n)   = 0.
   END DO
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 
   ! Test, if nod2d.out contains 3 or 4 columns.
   ! The first column, the number of the node, may be skipped.
@@ -183,7 +183,7 @@ SUBROUTINE read_2Dmesh()
   BoundingBox_xmax = coord_nod2D(1,1)
   BoundingBox_ymin = coord_nod2D(2,1)
   BoundingBox_ymax = coord_nod2D(2,1)
-!$OMP target teams distribute PARALLEL DO &
+!$OMP PARALLEL DO &
 !$OMP       reduction(min: BoundingBox_xmin, BoundingBox_ymin) &  
 !$OMP       reduction(max: BoundingBox_xmax, BoundingBox_ymax)  
   do n=2,nod2D
@@ -192,7 +192,7 @@ SUBROUTINE read_2Dmesh()
      BoundingBox_ymin = min(BoundingBox_ymin,coord_nod2D(2,n))
      BoundingBox_ymax = max(BoundingBox_ymax,coord_nod2D(2,n))
   end do
-!$OMP END target teams distribute PARALLEL DO  
+!$OMP END PARALLEL DO  
   !
   !  READS THE NODE-NUMBERS OF EACH ELEMENT 
   !  
@@ -253,7 +253,7 @@ SUBROUTINE set_up_bv_roughness
 
   ALLOCATE(rgh_edg(edg2D))
   
-!$OMP target teams distribute PARALLEL DO 
+!$OMP PARALLEL DO 
   do edg=1,edg2D
 
      nd1=edge_nod2D(1,edg)
@@ -266,7 +266,7 @@ SUBROUTINE set_up_bv_roughness
      endif
 
   end do
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 
 END SUBROUTINE set_up_bv_roughness
 
@@ -291,38 +291,38 @@ subroutine set_up_mng_roughness
     close(infile_mng)
 
 if (mng_max > 0.) then
-!$OMP target teams distribute PARALLEL DO
+!$OMP PARALLEL DO
   do n=1,nod2D
      mng_nod2D(n) = min(max(mng_nod2D(n),mng_min),  mng_max) 
   end do
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 else  
-!$OMP target teams distribute PARALLEL DO
+!$OMP PARALLEL DO
   do n=1,nod2D
      mng_nod2D(n) = max(mng_nod2D(n),mng_min) 
   end do
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 endif
 
   print *,'Before smoothing:'
   print *,'Minimal Manning roughness : ',minval(mng_nod2D)
   print *,'Maximal Manning roughness : ',maxval(mng_nod2D)
 
-  !$OMP TARGET TEAMS DISTRIBUTE
   do i = 1,2  
-     !$OMP parallel DO SIMD  private(nmb)
-     do n = 1, nod2D
-        nmb = nghbr_nod2D(n)%nmb
-        mng_aux(n) = sum(mng_nod2D(nghbr_nod2d(n)%addr(:))) / real(nmb,wp)
-     end do
-     !$OMP END parallel DO SIMD  
-     !$OMP parallel DO SIMD  
-     do n = 1, nod2D
-        mng_nod2D(n)=mng_aux(n)
-     end do
-     !$OMP END parallel DO SIMD 
+!$OMP PARALLEL 
+!$OMP DO  private(nmb)
+    do n = 1, nod2D
+      nmb = nghbr_nod2D(n)%nmb
+      mng_aux(n) = sum(mng_nod2D(nghbr_nod2d(n)%addr(:))) / real(nmb,wp)
+    end do
+!$OMP END DO 
+!$OMP DO 
+    do n = 1, nod2D
+       mng_nod2D(n)=mng_aux(n)
+    end do
+!$OMP END DO 
+!$OMP END PARALLEL
   end do
-  !$OMP END TARGET TEAMS DISTRIBUTE
 
   print *,'After smoothing:'
   print *,'Minimal Manning roughness : ',minval(mng_nod2D)
@@ -331,11 +331,11 @@ endif
 
   allocate(mng_edg2D(edg2D))
 
-!$OMP target teams distribute PARALLEL DO 
+!$OMP PARALLEL DO 
   do edg=1,edg2D
     mng_edg2D(edg)=0.5_wp*sum(mng_nod2D(edge_nod2D(1:2,edg)))
   end do  
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 
   print *,'Values in edges :'
   print *,'Minimal Manning roughness : ',minval(mng_edg2D)
@@ -384,13 +384,13 @@ SUBROUTINE build_nghbr_arrays()
   allocate(nodelem_addr(nodelem_ptr(nod2D+1)-1))
 
 ! first touch initialization for data locality in OpenMP 
-!$OMP target teams distribute PARALLEL DO  PRIVATE(n,j) 
+!$OMP PARALLEL DO  PRIVATE(n,j) 
   DO n = 1, nod2D  
      do j = nodelem_ptr(n), nodelem_ptr(n+1)-1
         nodelem_addr(j) = 0
      enddo
   END DO
-!$OMP END target teams distribute PARALLEL DO      
+!$OMP END PARALLEL DO      
 
   DO el = 1, elem2D 
      DO k = 1, 3  
@@ -512,19 +512,19 @@ SUBROUTINE build_edg_arrays
   ALLOCATE(elem2D_edges(3,elem2D))
   ALLOCATE(edg_nxy(2,edg2D))
   ALLOCATE(edg_length(edg2D))
-!$OMP TARGET teams !!!PARALLEL 
-!$OMP distribute parallel DO SIMD
+!$OMP PARALLEL 
+!$OMP DO 
   do n=1,  edg2D
      edge_nod2D(:,n)     = 0
      edge_in_elem2D(:,n) = 0
   enddo
-!$OMP END distribute parallel do simd !!!parallel DO !!!NOWAIT
-!$OMP distribute parallel DO SIMD !!!!!$OMP parallel DO 
+!$OMP END DO NOWAIT
+!$OMP DO 
   do n=1, elem2D
      elem2D_edges(:,n)   = 0
   enddo
-!$OMP END distribute parallel do simd !!!parallel DO
-!$OMP END TARGET teams !!!PARALLEL 
+!$OMP END DO
+!$OMP END PARALLEL 
 
   DO n = 1, nod2D
      nghbrnmb = nghbr_nod2D(n)%nmb
@@ -633,13 +633,13 @@ SUBROUTINE build_edg_arrays
  allocate(nodedge_addr(nodedge_ptr(nod2D+1)-1))
 
 ! first touch initialization for data locality in OpenMP 
-!$OMP target teams distribute PARALLEL DO  PRIVATE(n,j) 
+!$OMP PARALLEL DO  PRIVATE(n,j) 
   DO n = 1, nod2D  
      do j = nodedge_ptr(n), nodedge_ptr(n+1)-1
         nodedge_addr(j) = 0
      enddo
   END DO
-!$OMP END target teams distribute PARALLEL DO      
+!$OMP END PARALLEL DO      
 
 
  do edg=1,edg2D
@@ -676,7 +676,7 @@ SUBROUTINE smooth_topography
   i = 0
   nodhn_min = 99999.
   nodhn_max =-99999.
-!$OMP target teams distribute PARALLEL DO  REDUCTION(+:i) &
+!$OMP PARALLEL DO  REDUCTION(+:i) &
 !$OMP             REDUCTION(MIN:nodhn_min) &
 !$OMP             REDUCTION(MAX:nodhn_max) 
   DO n = 1, nod2D
@@ -687,7 +687,7 @@ SUBROUTINE smooth_topography
      nodhn_min = min(nodhn_min,nodhn(n))
      nodhn_max = max(nodhn_max,nodhn(n))
   END DO
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
 
   PRINT *,'Set topograhy in',i,' coastal nodes to Zero'
 
@@ -701,8 +701,8 @@ SUBROUTINE smooth_topography
      print *,'Topography before smoothing: ',nodhn_min, nodhn_max
 
      do i = 1, nmb_iter_smooth_topo
-!$OMP target teams PRIVATE(n,depval) !!!PARALLEL DEFAULT(SHARED) PRIVATE(n,depval)
-!$OMP distribute parallel DO simd  
+!$OMP PARALLEL DEFAULT(SHARED) PRIVATE(n,depval)
+!$OMP DO  
         do n = 1, nod2D
 
            !Check for (seldom) case of degenerated grid: node without neighbours
@@ -727,13 +727,13 @@ SUBROUTINE smooth_topography
            endif
 
         end do
-!$OMP END distribute parallel DO simd
-!$OMP distribute parallel DO simd
+!$OMP END DO
+!$OMP DO 
         do n = 1, nod2D
            nodhn(n) = nodhn_aux(n)
         end do
-!$OMP END distribute parallel DO SIMD          
-!$OMP END target teams!!!PARALLEL
+!$OMP END DO          
+!$OMP END PARALLEL
      end do
      deallocate(nodhn_aux)
 
@@ -742,7 +742,7 @@ SUBROUTINE smooth_topography
      i = 0
      nodhn_min = 99999.
      nodhn_max =-99999.
-!$OMP target teams distribute PARALLEL DO REDUCTION(MIN:nodhn_min) &
+!$OMP PARALLEL DO REDUCTION(MIN:nodhn_min) &
 !$OMP             REDUCTION(MAX:nodhn_max) &
 !$OMP             REDUCTION(+:i) 
      do n = 1, nod2D
@@ -753,7 +753,7 @@ SUBROUTINE smooth_topography
         nodhn_min = min(nodhn_min,nodhn(n))
         nodhn_max = max(nodhn_max,nodhn(n))
      end do
-!$OMP END target teams distribute PARALLEL DO
+!$OMP END PARALLEL DO
      print *,'topography after smoothing : ',nodhn_min, nodhn_max
      PRINT *,'Set topograhy in',i,' coastal nodes to Zero again'
 

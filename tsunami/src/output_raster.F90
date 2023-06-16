@@ -137,21 +137,21 @@ SUBROUTINE setup_raster_and_linearInterpolation(dx,dy,r)
   allocate(r%w(3,r%M,r%N), r%nodi(3,r%M,r%N))
   
   ! Coordinates of the raster
-!$OMP PARALLEL default(shared) &
+!$OMP target teams & !!!!$OMP PARALLEL default(shared) &
 !$OMP           private(m, x1, x2, x3, xmin, xmax, mstart, mend, &
 !$OMP                   n, y1, y2, y3, ymin, ymax, nstart, nend, &
 !$OMP                      w1, w2, w3, detinv, el)
-!$OMP DO  
+!$OMP distribute parallel DO simd
   do m=1,r%M
      r%x(m) = xi_min + real(m-1)*dx
   enddo
-!$OMP END DO NOWAIT
-!$OMP DO 
+!$OMP END distribute parallel DO simd !!!!!$OMP END DO NOWAIT
+!$OMP distribute parallel DO simd
   do n=1,r%N
      r%y(n) = yi_min + real(n-1)*dy
   enddo
-!$OMP END DO NOWAIT
-!$OMP DO  
+!$OMP END distribute parallel DO simd !!!!!!$OMP END DO NOWAIT
+!$OMP distribute parallel DO simd  
   ! Initialize interpolation weights
   do n=1,r%N
      do m=1,r%M
@@ -159,8 +159,8 @@ SUBROUTINE setup_raster_and_linearInterpolation(dx,dy,r)
         r%w(   1:3,m,n) = 0.
      enddo
   enddo
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END distribute parallel DO simd
+!$OMP END target teams 
   
   !NR To be on the save side, no OpenMP for this loop.
   !NR It is possible that raster nodes are handled multiple times
@@ -310,24 +310,24 @@ SUBROUTINE setup_raster_and_maxVal(dx,dy,r)
   allocate(r%nodesInPixel_idx(0:r%M*r%N))
   
   ! Coordinates of the raster
-!$OMP PARALLEL default(shared) &
+!$OMP target teams & !!!!$OMP PARALLEL default(shared) &
 !$OMP           private(m, n, k)
-!$OMP DO  
+!$OMP distribute parallel DO simd
   do m=1,r%M
      r%x(m) = xi_min + real(m-1)*dx
   enddo
-!$OMP END DO NOWAIT
-!$OMP DO 
+!$OMP END distribute parallel DO simd !!!!$OMP END DO NOWAIT
+!$OMP distribute parallel DO simd 
   do n=1,r%N
      r%y(n) = yi_min + real(n-1)*dy
   enddo
-!$OMP END DO NOWAIT
-!$OMP DO
+!$OMP END distribute parallel DO simd !!!!$OMP END DO NOWAIT
+!$OMP distribute parallel DO simd
   do k=0,r%M*r%N
      r%nodesInPixel_idx(k) = 0
   end do
-!$OMP END DO  
-!$OMP END PARALLEL
+!$OMP END distribute parallel DO simd
+!$OMP END target teams 
 
  
   max_nodesInPixel = 0
@@ -579,7 +579,7 @@ SUBROUTINE interpolate_r8(val, eps, r)
     if (eps > 0.) then
        epsinv=1./eps     ! with rounding
 
-!$OMP PARALLEL DO default(shared) &
+!$OMP target teams distribute PARALLEL DO & !!!!$OMP PARALLEL DO default(shared) &
 !$OMP             private(n,m) &
 !$OMP             reduction(min:mstart, nstart, Amin) &       
 !$OMP             reduction(max:mend,   nend,   Amax)       
@@ -602,11 +602,11 @@ SUBROUTINE interpolate_r8(val, eps, r)
              endif
           end do
        end do
-!$OMP END PARALLEL DO       
+!$OMP END target teams distribute PARALLEL DO       
     else
        ! No rounding
        
-!$OMP PARALLEL DO default(shared) &
+!$OMP target teams distribute PARALLEL DO default(shared) &
 !$OMP             private(n,m) &
 !$OMP             reduction(min:mstart, nstart, Amin) &       
 !$OMP             reduction(max:mend,   nend,   Amax)       
@@ -629,7 +629,7 @@ SUBROUTINE interpolate_r8(val, eps, r)
              endif
           end do
        end do
-!$OMP END PARALLEL DO       
+!$OMP END target teams distribute PARALLEL DO       
     end if
 
     r%mstart = mstart

@@ -91,7 +91,6 @@ PROGRAM MAIN
 
     !===========================================================
     !================ INITIALIZE MESH ==========================
-
     ! Set up the mesh and define basis functions
     CALL read_2Dmesh
     CALL standard_element_definition
@@ -166,7 +165,7 @@ PROGRAM MAIN
 
        sshmin = 1000._wp
        sshmax = -1000._wp
-!$OMP PARALLEL DO  REDUCTION(MIN:sshmin) REDUCTION(MAX:sshmax)
+!$OMP target teams distribute PARALLEL DO  REDUCTION(MIN:sshmin) REDUCTION(MAX:sshmax)
        do n=1,nod2D
           ssh0(n) = max(ssh0(n),min(0._wp,-nodhn(n)))
           ssh1(n) = ssh0(n)
@@ -175,7 +174,7 @@ PROGRAM MAIN
           sshmin = min(sshmin,ssh0(n))
           sshmax = max(sshmax,ssh0(n))
        end do
-!$OMP END PARALLEL DO
+!$OMP END target teams distribute PARALLEL DO
 
        PRINT *,'INIT MESH, initial SSH: minimum=', sshmin,', maximum=',sshmax
 
@@ -230,11 +229,11 @@ PROGRAM MAIN
 
     PRINT *,'INITIAL TIME :',time,time0
 
-!$OMP PARALLEL DO 
+!$OMP target teams distribute PARALLEL DO 
     do n=1,nod2D
        depth(n) = max(ssh2(n)+nodhn(n), 0._wp)
     end do
-!$OMP END PARALLEL DO
+!$OMP END target teams distribute PARALLEL DO
 
 
     !======================================================
@@ -311,11 +310,11 @@ PROGRAM MAIN
         ELSE IF (verbosity>=2) THEN
            checksum_ssh=0.
 
-!$OMP PARALLEL DO REDUCTION(+:checksum_ssh)
+!$OMP target teams distribute PARALLEL DO REDUCTION(+:checksum_ssh)
            DO n = 1, nod2D
               checksum_ssh = checksum_ssh + ssh2(n)
            ENDDO
-!$OMP END PARALLEL DO
+!$OMP END target teams distribute PARALLEL DO
            WRITE(*,'(I5,A3,f6.3,A8,E10.3,A8,E10.3,A7,E10.3,A6,E10.3)') &
                 i_time," t=",time/3600.," smin=",sshmin," smax=",sshmax," uvmax=",uvmax," dmin=",dmin
            print *, " check=",checksum_ssh
@@ -404,7 +403,6 @@ PROGRAM MAIN
     else
        stop 1
     end if
-
 END PROGRAM MAIN
 
 

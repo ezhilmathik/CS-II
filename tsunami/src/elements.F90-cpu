@@ -66,15 +66,14 @@ SUBROUTINE basisfunctions
     ALLOCATE(bafu_xy(6,elem2d))
     ALLOCATE(voltriangle(elem2d))
   
-!!!$OMP TARGET teams !!!$OMP PARALLEL
-!!!$OMP distribute parallel DO SIMD !!!$OMP DO
-!$omp target teams loop
+!$OMP PARALLEL
+!$OMP DO 
     do elem=1,elem2D
        bafu_xy(:,elem)   = 0.
        voltriangle(elem) = 0.
     enddo
-!!!$OMP END distribute parallel DO SIMD
-!!!$OMP END TARGET teams
+!$OMP END DO
+!$OMP END PARALLEL
 
 ! bafu_xy = bafuzeta_xy
 ! Employ: bafuvel_xy(1,el) = -2.*bafuzeta_xy(3,el)

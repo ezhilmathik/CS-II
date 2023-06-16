@@ -1,4 +1,2 @@
-#!/bin/bash
-module use /opt/apps/resif/iris/2019b/skylake/modules/all
-#module load compiler/PGI/19.10-GCC-8.3.0-2.32
-module load data/netCDF-Fortran/4.5.2-iimpi-2019b
+module purge
+module load autoload hpc-sdk/2022--binary hdf5/1.12.0--spectrum_mpi--10.4.0--binary fftw/3.3.8--spectrum_mpi--10.4.0--binary

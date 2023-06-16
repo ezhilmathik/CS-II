@@ -1,0 +1,82 @@
+#
+# Makefile.in for finite element code TsunAWI 
+#
+# Please adjust Fortran compiler and flags, path to netcdf
+# to your specific computer
+
+#===============================
+# Fortran compiler and flags
+#================================
+
+# GNU GFORTRAN 
+#--------------------
+##############
+###FC = gfortran 
+##############
+FC = nvfortran
+## Optimize for speed (on the current cpu architecture)
+###FCFLAGS = -O3 -pg -ffast-math -fopenmp -march=native -funroll-loops 
+###FCFLAGS = -fast -ta=host -Minfo -acc=host -fortranlibs
+###FCFLAGS = -ffast-math -fopenacc -foffload="-march=nvptx-none"
+FCFLAGS = -fast -mp=gpu -gpu=managed -Minfo=mp,accel ###-qoffload -qsmp
+##FCFLAGS = -fopenmp -foffload="-march=nvptx-none" -foffload=-lm -foffload=-lgfortran #### working 
+## Options for debugging:
+# FCFLAGS = -g -fbounds-check  -fopenmp -fbacktrace 
+
+AR = ar -r
+#=================================
+# Path to netcdf
+#=================================
+
+NETCFD_LD=/home/torel/workspace/NetCDF/netcdf-c-4.8.1/Build-x86_64/lib
+NETCFD_INC=/home/torel/workspace/NetCDF/netcdf-c-4.8.1/Build-x86_64/include
+ROOT=/home/torel/workspace/NetCDF/netcdf-c-4.8.1/Build-x86_64
+
+###NC_LIB = -L$(NETCFD_LD) -Wl, -rpath=$(NETCFD_LD) -lnetcdf -lnetcdff
+###NC_INC = -I$(NETCFD_INC)
+
+NC_LIB = -L$(ROOT) -Wl, -rpath=$(ROOT) -lnetcdf -lnetcdff
+NC_INC = -I$(ROOT)
+
+
+## If given by environment variables 
+####NC_LIB   = $(NETCFD_LD)
+#NC_LIB = /home/torel/workspace/NetCDF/netcdf-c-4.8.1/Build-x86_64
+####NC_INC  = -I$(NETCFD_INC)
+## If in the standard path (e.g. /usr/lib), you may skip -L<path>
+## We need the Fortran bindings, too, which can come as a seperate 
+## lib (netcdff) or be in included in the main lib (netcdf).
+#NC_LIB = -lnetcdf -lnetcdff
+#NC_INC = -I/usr/include
+## A path at your system, here Fortran libnetcdff included in libnetcdf
+# NC_ROOT = /uv/soft/netcdf/3.6.3-gnu
+#NC_ROOT = /opt/apps/resif/data/production/v1.2-20191021/default/software/data/netCDF-Fortran/4.4.5-iimpi-2019a/
+#NC_LIB = -L$(NC_ROOT)/lib/ 
+#NC_INC = -I$(NC_ROOT)/include
+## or no netcdf at all
+#NC_LIB = -DNO_NETCDF
+# NC_INC = 
+
+#===============================
+# Switch off "foxy" XML if not needed / desired
+# Foxy source code comes with TsunAWI and is compiled by default.
+# Switch off with:
+FOXY_FLAG = -DNO_FOXY
+
+#================================
+# Choose single (real32) or double (real64) precision for
+# floating point arithmetic.
+# Single precision is the default, because it is sufficient
+# for tsunami calculation, and faster.
+WP_FLAG = -DWORKING_PRECISION=real64
+
+#================================
+# Name of the executable
+#================================
+# Just choose whatever you like.
+EXE = ompTsuna.x
+
+
+
+
+

@@ -38,11 +38,11 @@ CONTAINS
     
     max_ssh0=0.
     
-!$OMP  PARALLEL DEFAULT(SHARED) &
+!$OMP target teams & !!!distribute PARALLEL DEFAULT(SHARED) &
 !$OMP&          PRIVATE(i,n,nmb) &
 !$OMP&          REDUCTION(max:max_ssh0)    
     DO i=1,nmb_iter_smooth_inicond
-!$OMP DO
+!$OMP distribute parallel DO simd
        DO n=1,nod2D
           nmb=nghbr_nod2D(n)%nmb
           if (nmb > 0) then
@@ -51,22 +51,22 @@ CONTAINS
              ssh_init(n) = ssh0(n)
           endif
        END DO
-!$OMP END DO
-!$OMP DO       
+!$OMP END distribute parallel DO simd
+!$OMP distribute parallel DO simd
        DO n=1,nod2D
           ssh0(n) = ssh_init(n)
        END DO
-!$OMP END DO
+!$OMP END distribute parallel DO simd
     END DO
     
     ! Adjust topography
-!$OMP DO
+!$OMP distribute parallel DO simd
     DO n=1,nod2D
        max_ssh0 = max(max_ssh0,abs(ssh0(n)))
        nodhn(n) = nodhn(n)-ssh0(n)
     END DO
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END distribute parallel DO simd
+!$OMP END target teams
     
     IF (max_ssh0 == 0.) then 
        print *, 'Initial Condition is all zero'
@@ -183,7 +183,7 @@ CONTAINS
        lc = cos(eq_epi_y*rad)**2
        n_nonzero = 0
 
-!$OMP PARALLEL DO  REDUCTION(+:n_nonzero) PRIVATE(n,dist)
+!$OMP target teams distribute PARALLEL DO  REDUCTION(+:n_nonzero) PRIVATE(n,dist)
        do n=1,nod2D
           dist = r_earth*r_earth *( lc*(coord_nod2D(1,n)-eq_epi_x*rad)**2 + &
                                        (coord_nod2D(2,n)-eq_epi_y*rad)**2 )
@@ -195,7 +195,7 @@ CONTAINS
           end if
 
        end do
-!$OMP END PARALLEL DO
+!$OMP END target teams distribute PARALLEL DO
 
        print *,'====================================='
        print *,'Cosine shaped initial condition'
@@ -218,9 +218,9 @@ CONTAINS
     end IF
     ! Smoothing of the initial condition
 
-!$OMP PARALLEL DEFAULT(SHARED) PRIVATE(n,nmb)
+!$OMP target teams PRIVATE(n,nmb) !!!PARALLEL DEFAULT(SHARED) PRIVATE(n,nmb)
     DO i=1,nmb_iter_smooth_inicond
-!$OMP DO 
+!$OMP distribute parallel DO simd
        DO n=1,nod2D
           nmb=nghbr_nod2D(n)%nmb
           if (nmb > 0) then
@@ -229,22 +229,22 @@ CONTAINS
              ssh_init(n) = ssh0(n)
           endif
        END DO
-!$OMP END DO
-!$OMP DO 
+!$OMP END distribute parallel DO simd
+!$OMP distribute parallel DO simd
        DO n=1,nod2D
           ssh0(n) = ssh_init(n)
        END DO
-!$OMP END DO
+!$OMP END distribute parallel DO simd
     END DO
 
     ! Adjust topography
-!$OMP DO 
+!$OMP distribute parallel DO simd
     DO n=1,nod2D
        nodhn(n)    = nodhn(n)-ssh0(n)
        ssh_init(n) = ssh0(n)
     END DO
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END distribute parallel DO simd
+!$OMP END target teams !!! PARALLEL 
 
 
 
