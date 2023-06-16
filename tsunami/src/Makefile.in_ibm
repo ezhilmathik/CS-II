@@ -1,0 +1,64 @@
+#
+# Makefile.in for finite element code TsunAWI 
+#
+# Please adjust Fortran compiler and flags, path to netcdf
+# to your specific computer
+
+#===============================
+# Fortran compiler and flags
+#================================
+
+# IBM compiler XLF
+#--------------------
+FC = xlf90_r 
+## Optimize for speed (on the current cpu architecture)
+FCFLAGS = -g -O5 -qsmp=omp -qarch=auto -qtune=auto
+
+# No IBM system to test how to build a static library.
+# Replace, if necessary:
+AR = ar -r
+
+#=================================
+# Path to netcdf
+#=================================
+
+## If given by environment variables 
+# NC_LIB   = $(NETCDF_LD)
+# NC_INC  = -I$(NETCDF_INC)
+## If in the standard path (e.g. /usr/lib), you may skip -L<path>
+## We need the Fortran bindings, too, which can come as a seperate 
+## lib (netcdff) or be in included in the main lib (netcdf).
+# NC_LIB = -lnetcdf -lnetcdff
+# NC_INC =
+## A path at your system, here Fortran libnetcdff included in libnetcdf
+# NC_ROOT = /uv/soft/netcdf/3.6.3-gnu
+# NC_LIB = -L$(NC_ROOT)/lib -lnetcdf  
+# NC_INC = -I$(NC_ROOT)/include
+## or no netcdf at all
+NC_LIB = -DNO_NETCDF
+NC_INC = 
+
+#================================
+# Choose single (real32) or double (real64) precision for
+# floating point arithmetic.
+# Single precision is the default, because it is sufficient
+# for tsunami calculation, and faster.
+# WP_FLAG = -DWORKING_PRECISION=real32
+
+#===============================
+# Switch off "foxy" XML if not needed / desired
+# Foxy source code comes with TsunAWI and is compiled by default.
+# Switch off with:
+FOXY_FLAG = -DNO_FOXY
+
+
+
+#================================
+# Name of the executable
+#================================
+# Just choose whatever you like.
+EXE = ompTsuna.x
+
+
+
+

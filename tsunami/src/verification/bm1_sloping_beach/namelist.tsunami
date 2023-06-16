@@ -1,0 +1,56 @@
+&general
+
+MeshPath    = '../mesh/bm1/',
+IniCondPath = '../mesh/bm1/',
+OutputPath  = './',
+TopoFile    = 'nodhn.out',
+
+output_prefix  = 'bm1',
+
+coordinate_type = 2,
+rotation_type=0,
+
+momadv_type = 2,
+wetting_drying_type=1,
+use_bv_roughness = .false.,
+
+nmb_iter_smooth_inicond = 0,
+nmb_iter_smooth_topo = 0,
+
+verbosity=0/
+
+&model_init
+enable_ruptgen_scenario = .false.,
+enable_okada_scenario=.false.,
+enable_read_initial_field=.true.,
+enable_benchmark = .true.,
+benchmark_ident = 1,
+enable_idealised = .false./
+
+
+&model_output
+enable_snapshots = .false.,
+enable_nc_out = .false.,
+enable_bin_out = .false.,
+write_restart=.FALSE.,
+write_groundtrack_data=.FALSE.,
+write_ascii_neighbourhood=.FALSE.,
+write_final_checksums=.true./
+
+
+&para
+dt=0.01,
+T_end=3.,
+T_chunk=3.,
+T_out=5.,
+smooth_vel_time=1800.,
+viscosity_type=1,
+smag_fact=0.1,
+Ah0 =5.e-2,
+alpha=0.01,
+Cd=0.002,
+Dcr=0.1/
+
+
+&model_init_from_file
+init_filename='ssh0_bm1.out'/

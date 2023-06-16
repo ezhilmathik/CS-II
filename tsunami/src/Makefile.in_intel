@@ -1,0 +1,63 @@
+#
+# Makefile for finite element code TsunAWI 
+#
+# Please adjust Fortran compiler and flags, path to netcdf
+# to your specific computer
+
+#===============================
+# Fortran compiler and flags
+#================================
+
+# INTEL COMPILER 
+#-------------------
+FC = ifort
+## Options optimizing for speed (on the current cpu architecture)
+FCFLAGS = -O3 -ipo -xHost -qopenmp -no-prec-div -align 
+## Options for debugging:
+# FCFLAGS = -g -xHost -qopenmp -traceback -fpe:0 -check all 
+
+AR = ar -r
+
+#=================================
+# Path to netcdf
+#=================================
+
+## If given by environment variables 
+# NC_LIB   = $(NETCDF_LD)
+# NC_INC  = -I$(NETCDF_INC)
+## If in the standard path (e.g. /usr/lib), you may skip -L<path>
+## We need the Fortran bindings, too, which can come as a seperate 
+## lib (netcdff) or be in included in the main lib (netcdf).
+# NC_LIB = -lnetcdf -lnetcdff
+# NC_INC =
+## A path at your system
+NC_ROOT = /global/AWIsoft/netcdf/4.6.2_gnu
+NC_LIB = -L$(NC_ROOT)/lib -Wl,-rpath,$(NC_ROOT)/lib -lnetcdf -lnetcdff
+NC_INC = -I$(NC_ROOT)/include
+## or no netcdf at all
+# NC_LIB = -DNO_NETCDF
+# NC_INC = 
+
+#===============================
+# Switch off "foxy" XML if not needed / desired
+# Foxy source code comes with TsunAWI and is compiled by default.
+# Switch off with:
+FOXY_FLAG = -DNO_FOXY
+
+#================================
+# Choose single (real32) or double (real64) precision for
+# floating point arithmetic.
+# Single precision is the default, because it is sufficient
+# for tsunami calculation, and faster.
+# WP_FLAG = -DWORKING_PRECISION=real32
+
+#================================
+# Name of the executable
+#================================
+# Just choose whatever you like.
+EXE = ompTsuna.x
+
+
+
+
+

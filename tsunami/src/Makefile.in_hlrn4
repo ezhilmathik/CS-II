@@ -1,0 +1,59 @@
+#
+# Makefile for finite element code TsunAWI 
+#
+# Adjusted for hlrn.de
+#
+#===============================
+# Fortran compiler and flags
+#================================
+
+# INTEL COMPILER 
+#-------------------
+FC = ifort
+## Options optimizing for speed (on the current cpu architecture)
+FCFLAGS = -O3 -ipo -xHost -qopenmp -no-prec-div -align -static-intel -qopenmp-link=static
+## Options for debugging:
+# FCFLAGS = -g -xHost -qopenmp -traceback -fpe:0 -check all 
+
+AR = ar -r
+
+#=================================
+# Path to netcdf
+#=================================
+
+## If given by environment variables 
+## For Anselm, it is LD_LIBRARY_PATH, hard to get the right HDF5 and other libs
+## 
+## module load netCDF-Fortran
+## 
+## loads one set of netcdf-fortran, netcdf, ifort (2017.1) that fits together.
+## No more recent netcdf, as far as I can tell.
+# NC_LIB = -lnetcdf -lnetcdff
+# NC_INC = 
+## or no netcdf at all
+NC_LIB = -DNO_NETCDF
+NC_INC = 
+
+#===============================
+# Switch off "foxy" XML if not needed / desired
+# Foxy source code comes with TsunAWI and is compiled by default.
+# Switch off with:
+FOXY_FLAG = -DNO_FOXY
+
+#================================
+# Choose single (real32) or double (real64) precision for
+# floating point arithmetic.
+# Single precision is the default, because it is sufficient
+# for tsunami calculation, and faster.
+# WP_FLAG = -DWORKING_PRECISION=real32
+
+#================================
+# Name of the executable
+#================================
+# Just choose whatever you like.
+EXE = ompTsuna.x
+
+
+
+
+

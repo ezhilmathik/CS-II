@@ -1,0 +1,64 @@
+&general
+
+MeshPath    = '../mesh/global_33k/',
+IniCondPath = './',
+OutputPath  = './',
+TopoFile    = 'nodhn.out',
+
+output_prefix  = 'glob',
+
+coordinate_type = 1,
+rotation_type=2,
+
+momadv_type = 1,
+wetting_drying_type=1,
+use_bv_roughness = .false.,
+
+nmb_iter_smooth_inicond = 0,
+nmb_iter_smooth_topo = 1,
+
+verbosity=1/
+
+&model_init
+enable_ruptgen_scenario = .false.,
+enable_okada_scenario=.false.,
+enable_read_initial_field=.false.,
+enable_benchmark = .false.,
+benchmark_ident = 1,
+enable_idealised = .true.,
+enable_dhdt=.false.,
+initial_shape='cosine'/
+
+
+&model_output
+enable_snapshots = .false.,
+enable_nc_out = .false.,
+enable_bin_out = .false.,
+write_restart=.true.,
+write_tidegauge_data = .false.,
+nc_snapshot_accuracy_ssh = 0.001,
+write_groundtrack_data=.FALSE.,
+write_ascii_neighbourhood=.FALSE.,
+write_final_checksums=.true./
+
+
+&para
+dt=2.0,
+T_end=180.,
+T_chunk=90.,
+T_out=60.,
+smooth_vel_time=18000.,
+viscosity_type=2,
+smag_fact=0.1,
+Ah0 =5.e-2,
+alpha=0.01,
+Cd=0.02,
+Dcr=0.1/
+
+
+&model_init_idealised
+ideal_mw = 9.0,  
+ideal_epi_lon=-11.0,
+ideal_epi_lat=36.0,
+ideal_shape='cosine',
+ideal_scaling = 'strasser2010'/

@@ -1,0 +1,44 @@
+18 October 2019, Natalja.Rakowsky@awi.de
+
+To parse QuakeML files, we have added this "Fortran XML parser for poor people" 
+to the TsunAWI source code.
+
+======= SOURCE ========
+
+Downloaded on 17 October 2019 from:
+
+https://github.com/Fortran-FOSS-Programmers/FoXy
+
+including the prerequisites 
+
+https://github.com/szaghi/BeFoR64/tree/d2be41faa804c5b1b811351c5384cdb6c58ce431
+BeFoR64, Base64 encoding/decoding library for FoRtran poor men 
+
+https://github.com/szaghi/PENF/tree/d2b27d5652f48584b9468ebd0b11dd44b5fb1638
+Portability Environment for Fortran poor people 
+
+https://github.com/szaghi/StringiFor/tree/8bea52594a518ce18662435869d0344ed75e1cca
+Strings Fortran Manipulator with steroids 
+
+
+======= LICENSE =========
+
+All ar open source projects, distributed under a multi-licensing system:
+
+    for FOSS projects:
+        GPL v3
+	http://www.gnu.org/licenses/gpl-3.0.html
+
+    for closed source/commercial projects:
+        BSD 2-Clause
+	http://opensource.org/licenses/BSD-2-Clause
+        BSD 3-Clause
+	http://opensource.org/licenses/BSD-3-Clause
+        MIT
+        http://opensource.org/licenses/MIT
+
+
+======= INSTALLATION =========
+
+Nothing to be done, the build process is integrated in the TsunAWI Makefile.
+

@@ -1,0 +1,55 @@
+&general
+
+MeshPath    = '../mesh/bm2_24k/',
+IniCondPath = '../mesh/bm2_24k/',
+OutputPath  = './',
+TopoFile    = 'nodhn.out',
+
+output_prefix  = 'oku_bm2',
+
+coordinate_type = 2,
+rotation_type=0,
+
+momadv_type = 1,
+
+use_bv_roughness = .false.,
+
+nmb_iter_smooth_inicond = 0,
+nmb_iter_smooth_topo = 2,
+wetting_drying_type=1,
+
+verbosity=0/
+
+&model_init
+enable_ruptgen_scenario = .false.,
+enable_okada_scenario=.false.,
+enable_read_initial_field=.false.,
+enable_benchmark = .true.,
+benchmark_ident = 2,
+enable_idealised = .false./
+
+
+&model_output
+enable_snapshots = .false.,
+enable_nc_out = .false.,
+enable_bin_out = .false.,
+write_restart=.FALSE.,
+
+write_groundtrack_data=.FALSE.,
+write_ascii_neighbourhood=.FALSE.,
+write_final_checksums=.true./
+
+
+&para
+dt=0.0025,
+T_end=1.,
+T_chunk=1.,
+T_out=0.1,
+smooth_vel_time=10800.,
+viscosity_type=2,
+smag_fact=0.3,
+Ah0 =5.e-2,
+alpha=0.01,
+Cd=0.005,
+Dcr=0.1/
+

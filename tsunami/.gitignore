@@ -1,0 +1,7 @@
+*~
+*.o
+*.mod
+ompTsuna.x
+Makefile.in
+slurm-*out
+padang*
